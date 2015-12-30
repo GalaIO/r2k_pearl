@@ -58,7 +58,6 @@ namespace R2kDemo
             // 允许跨线程更新窗口控件
             Control.CheckForIllegalCrossThreadCalls = false;
 
-            rbNet.Checked = true;
             textBoxPort.Text = "20058";
             for (int i = 100; i <= 5000; i += 100)
             {
@@ -84,10 +83,7 @@ namespace R2kDemo
 
             // 初始化各个页面控件
             InitCommParamControl();
-            InitAccessTagControl();
-            DisableAccessTagButton(false);
             cbbLangSwitch.SelectedIndex = 0; // 默认中文
-            cbbLangSwitch_SelectedIndexChanged(null, null);
 
             btnConnect.Enabled = true;
             btnDisconnect.Enabled = false;
@@ -96,34 +92,9 @@ namespace R2kDemo
             btnStartReadData.Enabled = false;            
             btnReadOnce.Enabled = false;
             btnStopReadData.Enabled = false;
-            comboBoxSerialCommPort.Visible = false;
             btnUpdate_Click(null, null);
         }
-        private void InitAccessTagControl()
-        {
-            // 读写区域
-            cbbRWBank.Items.Add("Reserve");
-            cbbRWBank.Items.Add("EPC");
-            cbbRWBank.Items.Add("TID");
-            cbbRWBank.Items.Add("User");
 
-            // 锁卡区域
-            cbbLockBank.Items.Add("Kill");
-            cbbLockBank.Items.Add("Access");
-            cbbLockBank.Items.Add("EPC");
-            cbbLockBank.Items.Add("TID");
-            cbbLockBank.Items.Add("User");
-
-            tbRWAccessPwd.Text = "00 00 00 00";
-           
-        }
-        private void DisableAccessTagButton(bool bEnabled)
-        {
-            btnReadData.Enabled = bEnabled;
-            btnWriteData.Enabled = bEnabled;
-            btnLockTag.Enabled = bEnabled;
-            btnKillTag.Enabled = bEnabled;
-        }
         // 更新串口列表
         public void GetSerialPortList(ref ComboBox comboBoxSP)
         {
@@ -136,8 +107,6 @@ namespace R2kDemo
         }
         unsafe private void btnUpdate_Click(object sender, EventArgs e)
         {
-            // 获得串口列表
-            GetSerialPortList(ref comboBoxSerialCommPort);
             WSADATA wsaData = new WSADATA();
             WSAStartup(0x0202,  ref wsaData); 
             // 搜索设备，获得IP列表
@@ -176,7 +145,6 @@ namespace R2kDemo
             btnSetAnts.Enabled = true;
             btnStartReadData.Enabled = true;
             btnReadOnce.Enabled = true;
-            DisableAccessTagButton(true);
             bConnected = true;
             timerConnect.Stop();// 连接成功，结束定时器
         }
@@ -195,8 +163,7 @@ namespace R2kDemo
             byte[] ip = new byte[32];
             int CommPort = 0;
             uint PortOrBaudRate = 0;
-            if (rbNet.Checked) // TCP/IP
-            {
+         
                 if ((!Regex.IsMatch(comboBoxIP.Text, "^[0-9.]+$")) || comboBoxIP.Text.Length < 7 || comboBoxIP.Text.Length > 15)
                 {
                     MessageBox.Show(rm.GetString("strMsgInvalidIPAdd")); 
@@ -209,20 +176,6 @@ namespace R2kDemo
                     return;
                 }
                 PortOrBaudRate = UInt32.Parse(textBoxPort.Text);
-            }
-            else // SerialCommPort
-            {
-                if (comboBoxSerialCommPort.SelectedIndex >= 0)
-                {
-                    CommPort = int.Parse(comboBoxSerialCommPort.Text.Trim("COM".ToCharArray()));
-                    PortOrBaudRate = 115200;
-                }
-                else
-                {
-                    MessageBox.Show(rm.GetString("strMsgSelectPort"));// rm.GetString("strMsgSelectPort")
-                    return;
-                }
-            }
             // 使用委托异步线程执行连接，同时启动定时器，等待
             DeleConnectDev dcd = new DeleConnectDev(ConnectDevice);
            dcd.BeginInvoke(ip, CommPort, PortOrBaudRate, null, null);
@@ -478,22 +431,6 @@ namespace R2kDemo
             UpdateLV();
         }
 
-        private void radioButtonSP_CheckedChanged(object sender, EventArgs e)
-        {
-            comboBoxSerialCommPort.Visible = true;
-            comboBoxIP.Visible = false;
-            textBoxPort.Visible = false;
-            labCommPort.Visible = false;
-        }
-
-        private void radioButtonNet_CheckedChanged(object sender, EventArgs e)
-        {
-            comboBoxSerialCommPort.Visible = false;
-            comboBoxIP.Visible = true;
-            textBoxPort.Visible = true;
-            labCommPort.Visible = true;
-        }
-
         private void SetCommParam_Enter(object sender, EventArgs e)
         {
         }
@@ -672,531 +609,14 @@ namespace R2kDemo
              }
         }
 
-        private void cbbRWBank_SelectedIndexChanged(object sender, EventArgs e)
-        {   // 根据操作区域，确定有效的起始地址
-            if (cbbRWBank.SelectedIndex == 0) // 保留区
-            {
-                RWBank = 0;
-                addStart = 0;
-                addEnd = 3;
-            }
-            else if (cbbRWBank.SelectedIndex == 1) // EPC区
-            {
-                RWBank = 1;
-                addStart = 2;
-                addEnd = 7;
-            }
-            else  if (cbbRWBank.SelectedIndex == 2) // TID
-            {
-                RWBank = 2;
-                addStart = 0;
-                addEnd = 5;
-            }
-            else if (cbbRWBank.SelectedIndex == 3) // User
-            {
-                RWBank = 3;
-                addStart = 0;
-                addEnd = 31;
-            }
-            cbbStartAdd.Items.Clear();
-            for (int i = addStart; i <= addEnd; ++i)
-            {
-                cbbStartAdd.Items.Add(i.ToString());
-            }
-        }
-
-        private void cbbStartAdd_SelectedIndexChanged(object sender, EventArgs e)
-        { // 根据起始地址，确定长度选项
-            int nItem = cbbStartAdd.SelectedIndex; // 取出起始地址索引值
-            int maxLength = addEnd - addStart - nItem +1;
-            cbbLength.Items.Clear();
-            for (int i = 1; i <= maxLength; ++i)
-            {
-                cbbLength.Items.Add(i.ToString());
-            }
-        }
-
-        private void btnClearData_Click(object sender, EventArgs e)
-        {
-            tbRWData.Text = "";
-        }
-
-        private void btnReadData_Click(object sender, EventArgs e)
-        {
-            int RWBank = -1;
-            int StartAdd = -1;
-            int Length = -1;
-            labResult.Text = "";
-            if ((RWBank = cbbRWBank.SelectedIndex) == -1)
-            {
-                MessageBox.Show(rm.GetString("strMsgSelectRWBank"));// rm.GetString("strMsgSelectRWBank")
-                return;
-            }
-            if ((StartAdd = cbbStartAdd.SelectedIndex) == -1)
-            {
-                MessageBox.Show(rm.GetString("strMsgSelectStartAdd"));// rm.GetString("strMsgSelectStartAdd")
-                return;
-            }
-            StartAdd = int.Parse(cbbStartAdd.Text);
-            if ((Length = cbbLength.SelectedIndex) == -1)
-            {
-                MessageBox.Show(rm.GetString("strMsgSelectLength")); // rm.GetString("strMsgSelectLength")
-                return;
-            }
-            Length = int.Parse(cbbLength.Text);
-
-            string strpwd = tbRWAccessPwd.Text.Replace(" ", "");
-            if (strpwd.Length != 8)
-            {
-                MessageBox.Show(rm.GetString("strMsgPwdMustEight")); // rm.GetString("strMsgPwdMustEight")
-                return;
-            }
-            if (!IsHexCharacter(strpwd))
-            {
-                MessageBox.Show(rm.GetString("strMsgPwdInvalidChar"));// rm.GetString("strMsgPwdInvalidChar")
-                return;
-            }
-
-            // 转密码框的字符转为byte数组
-            byte[] pwd = new byte[4];
-            for (int i = 0; i < 4; ++i)
-            {
-                pwd[i] = Convert.ToByte(strpwd.Substring(i * 2, 2), 16); // 把字符串的子串转为16进制的8位无符号整数
-            }
-            byte[] byteArray = new byte[64];
-            tbRWData.Text = "";
-            if (0 == R2k.ReadTagData((byte)RWBank, (byte)StartAdd, (byte)Length, byteArray, pwd))
-            {
-                for (int i = 0; i < 2 * Length; i++)
-                {
-                    tbRWData.Text += string.Format("{0:X2} ",byteArray[i]);
-                }
-            }
-            else
-            {
-                labResult.Text = rm.GetString("strMsgFailedReadData");
-            }
-        }
-
-        private void btnWriteData_Click(object sender, EventArgs e)
-        {
-            int RWBank = -1;
-            int StartAdd = -1;
-            int Length = -1;
-            labResult.Text = "";
-            if ((RWBank = cbbRWBank.SelectedIndex) == -1)
-            {
-                MessageBox.Show(rm.GetString("strMsgSelectRWBank"));//rm.GetString("strMsgSelectRWBank")
-                return;
-            }
-            if ((StartAdd = cbbStartAdd.SelectedIndex) == -1)
-            {
-                MessageBox.Show(rm.GetString("strMsgSelectStartAdd"));//rm.GetString("strMsgSelectStartAdd")
-                return;
-            }
-            StartAdd = int.Parse(cbbStartAdd.Text);
-            if ((Length = cbbLength.SelectedIndex) == -1)
-            {
-                MessageBox.Show(rm.GetString("strMsgSelectLength"));//rm.GetString("strMsgSelectLength")
-                return;
-            }
-            Length = int.Parse(cbbLength.Text);
-
-            string strpwd = tbRWAccessPwd.Text.Replace(" ", "");
-            if (strpwd.Length != 8)
-            {
-                MessageBox.Show(rm.GetString("strMsgPwdMustEight"));// rm.GetString("strMsgPwdMustEight")
-                return;
-            }
-            if (!IsHexCharacter(strpwd))
-            {
-                MessageBox.Show(rm.GetString("strMsgPwdInvalidChar"));// rm.GetString("strMsgPwdInvalidChar")
-
-                return;
-            }
-
-            byte[] pwd = new byte[4];
-            for (int i = 0; i < 4; ++i)
-            {
-                pwd[i] = Convert.ToByte(strpwd.Substring(i * 2, 2), 16); // 把字符串的子串转为16进制的8位无符号整数
-            }
-
-            string strData = tbRWData.Text.Replace(" ", "");// 去空格
-            if (strData.Length % 4 != 0 || strData.Length / 4 != Length)
-            {
-                MessageBox.Show(rm.GetString("strMsgLengthDiff"));// rm.GetString("strMsgLengthDiff")
-                return;
-            }
-            if (!IsHexCharacter(strData))
-            {
-                MessageBox.Show(rm.GetString("strMsgPwdInvalidChar"));// rm.GetString("strMsgPwdInvalidChar")
-
-                return;
-            }
-            byte[] byteArray = new byte[64];
-            for (int i = 0; i < 2 * Length; ++i)
-            {
-                byteArray[i] = Convert.ToByte(strData.Substring(2 * i, 2), 16);
-            }
-            if (0 == R2k.WriteTagData((byte)RWBank, (byte)StartAdd, (byte)Length, byteArray, pwd))
-            {
-                labResult.Text = rm.GetString("strMsgSucceedWrite");
-            }
-            else
-            {
-                labResult.Text = rm.GetString("strMsgFailedWrite");
-            }
-
-
-        }
         private bool IsHexCharacter(string str)
         {
             return Regex.IsMatch(str, "^[0-9A-Fa-f]+$");
-        }
-
-        private void btnLockTag_Click(object sender, EventArgs e)
-        {
-            int lockBank = -1;
-            int locktType = -1;
-            labResult.Text = "";
-            if ((lockBank = cbbLockBank.SelectedIndex) == -1)
-            {
-                MessageBox.Show(rm.GetString("strMsgSelecOprBank"));// rm.GetString("strMsgSelecOprBank")
-                return;
-            }
-            if ((locktType = cbbLockType.SelectedIndex) == -1)
-            {
-                MessageBox.Show(rm.GetString("strMsgSelectOprType"));// rm.GetString("strMsgSelectOprType")
-                return;
-            }
-            string strpwd = tbLockAccessPwd.Text.Replace(" ", "");
-            if (strpwd.Length != 8)
-            {
-                MessageBox.Show(rm.GetString("strMsgPwdMustEight"));// rm.GetString("strMsgPwdMustEight")
-                return;
-            }
-            if (!IsHexCharacter(strpwd))
-            {
-                MessageBox.Show(rm.GetString("strMsgPwdInvalidChar"));//rm.GetString("strMsgPwdInvalidChar")
-                return;
-            }
-
-            byte[] pwd = new byte[4];
-            for (int i = 0; i < 4; ++i)
-            {
-                pwd[i] = Convert.ToByte(strpwd.Substring(i * 2, 2), 16); // 把字符串的子串转为16进制的8位无符号整数
-            }
-            if (0 == R2k.LockTag((byte)locktType, (byte)lockBank, pwd))
-            {
-                labResult.Text = rm.GetString("strMsgSucceedOpr");
-            }
-            else
-            {
-                labResult.Text =  rm.GetString("strMsgFailedOpr");
-            }
-            return;
-        }
-
-        private void btnKillTag_Click(object sender, EventArgs e)
-        {
-            string strAccessPwd = tbKillAccessPwd.Text.Replace(" ", "");
-            string strKillPwd = tbKillKillPwd.Text.Replace(" ", "");
-            if (!IsHexCharacter(strAccessPwd) || !IsHexCharacter(strKillPwd))
-            {
-                MessageBox.Show(rm.GetString("strMsgPwdInvalidChar")); // rm.GetString("strMsgPwdInvalidChar")
-                return;
-            }
-            if (strAccessPwd.Length != 8 || strKillPwd.Length != 8)
-            {
-                MessageBox.Show(rm.GetString("strMsgPwdMustEight")); //  rm.GetString("strMsgPwdMustEight")
-                return;
-            }
-            byte[] byteAccessPwd = new byte[4];
-            byte[] byteKillPwd = new byte[4];
-            for (int i = 0; i < 4; ++i)
-            {
-                byteAccessPwd[i] = Convert.ToByte(strAccessPwd.Substring( i * 2, 2), 16);
-                byteKillPwd[i] = Convert.ToByte(strKillPwd.Substring(i * 2, 2), 16);
-            }
-           if(0 == R2k.KillTag(byteAccessPwd, byteKillPwd))
-            {
-                labResult.Text = rm.GetString("strMsgSucceedDes");
-            }
-            else
-            {
-                labResult.Text = rm.GetString("strMsgFailedDes");
-            }
         }
         bool IsDecNumber(string str)
         {
             return Regex.IsMatch(str, "^[0-9]+$");
         }
-
-        private void btnSetDevNo_Click(object sender, EventArgs e)
-        {
-            labSetParam.Text = "";
-            if (tbDevNo.Text == "")
-            {
-                MessageBox.Show(rm.GetString("strMsgDevNoNotEmpty"));// rm.GetString("strMsgDevNoNotEmpty")
-                return;
-           }
-            if (!IsDecNumber(tbDevNo.Text))
-            {
-                MessageBox.Show(rm.GetString("strMsgNotDigit")); // rm.GetString("strMsgNotDigit")
-                    return;
-            }
-
-            int devno = int.Parse(tbDevNo.Text);
-            if (devno > 255)
-            {
-                MessageBox.Show(rm.GetString("strMsgDevNoValid")); // rm.GetString("strMsgDevNoValid")
-                return;
-            }
-            if (0 == R2k.SetDeviceNo((byte)devno))
-            {
-                labSetParam.Text = rm.GetString("strMsgSucceedSetDevNo");
-            }
-            else
-            {
-                labSetParam.Text =  rm.GetString("strMsgFailedSetDevNo");
-            }
-        }
-
-        private void btnSetNeighJudge_Click(object sender, EventArgs e)
-        {
-            labSetParam.Text = "";
-            if (tbNeighJudge.Text == "")
-            {
-                MessageBox.Show(rm.GetString("strMsgNJNotEmpty")); // rm.GetString("strMsgNJNotEmpty")
-                return;
-            }
-            if (!IsDecNumber(tbNeighJudge.Text))
-            {
-                MessageBox.Show(rm.GetString("strMsgNotDigit")); // rm.GetString("strMsgNotDigit")
-                return;
-            }
-
-            int neighJudge = int.Parse(tbNeighJudge.Text);
-            if (neighJudge > 255)
-            {
-                MessageBox.Show(rm.GetString("stMsgNJValid"));// rm.GetString("stMsgNJValid")
-                return;
-            }
-            if (0 == R2k.SetNeighJudgeTime((byte)neighJudge))
-            {
-                labSetParam.Text = rm.GetString("strMsgSucceedSetNJ");
-            }
-            else
-            {
-                labSetParam.Text = rm.GetString("strMsgFailedSetNJ");
-            }
-        }
-
-        private void btnSetHeartTime_Click(object sender, EventArgs e)
-        {
-            labSetParam.Text = "";
-            if (tbHeartTime.Text == "")
-            {
-                MessageBox.Show(rm.GetString("strMsgAliveNotEmpty")); // rm.GetString("strMsgAliveNotEmpty")
-                return;
-            }
-            if (!IsDecNumber(tbHeartTime.Text))
-            {
-                MessageBox.Show(rm.GetString("strMsgNotDigit")); // rm.GetString("strMsgNotDigit")
-                return;
-            }
-
-            int heartTime = int.Parse(tbHeartTime.Text);
-            if (heartTime > 255)
-            {
-                MessageBox.Show(rm.GetString("strMsgAliveValid")); // rm.GetString("strMsgAliveValid")
-                return;
-            }
-            if (0 == R2k.SetNeighJudgeTime((byte)heartTime))
-            {
-                labSetParam.Text = rm.GetString("strMsgSucceedSetAlive");
-            }
-            else
-            {
-                labSetParam.Text =  rm.GetString("strMsgFailedSetAlive");
-            }
-        }
-
-        private void btnGetInPort_Click(object sender, EventArgs e)
-        {
-            byte[] portState = new byte[2];
-            if (0 == R2k.GetDI(portState))
-            {
-                if (1 == portState[0])
-                {
-                    cbIn1.Checked = true;
-                }
-                else
-                {
-                    cbIn1.Checked = false;
-                }
-                if (1 == portState[1])
-                {
-                    cbIn2.Checked = true;
-                }
-                else
-                {
-                    cbIn2.Checked = false;
-                }
-            }
-            else
-            {
-                labSetParam.Text = rm.GetString("strMsgFailedGetIn");
-            }
-        }
-
-        private void btnSetOutPort_Click(object sender, EventArgs e)
-        {
-            byte outPort1 = 0;
-            byte outPort2 = 0;
-            if (cbOut1.Checked)
-            {
-                outPort1 = 1;
-            }
-            if (cbOut2.Checked)
-            {
-                outPort2 = 1;
-            }
-            if (0 == R2k.SetDO(1, outPort1) && 0 == R2k.SetDO(2, outPort2))
-            {
-                labSetParam.Text = rm.GetString("strMsgSucceedSetOut");
-
-            }
-            else
-            {
-                labSetParam.Text =  rm.GetString("strMsgFailedSetOut");
-            }
-        }
-
-        private void cbbLangSwitch_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            //// 锁卡操作类型
-            cbbLockType.Items.Clear();
-            if (cbbLangSwitch.SelectedIndex == 0)
-            {
-                cbbLockType.Items.Add("解锁");
-                cbbLockType.Items.Add("永久可写");
-                cbbLockType.Items.Add("安全锁定");
-                cbbLockType.Items.Add("永久不可写");
-            }
-            else
-            {
-                cbbLockType.Items.Add("Unlock");
-                cbbLockType.Items.Add("Permanence writable");
-                cbbLockType.Items.Add("Security lock");
-                cbbLockType.Items.Add("Permanence unwritable");
-            }
-            // 引用所选择的语言字符串
-           // ResourceManager rm = rmArray[cbbLangSwitch.SelectedIndex];
-            rm = rmArray[cbbLangSwitch.SelectedIndex];
-            // Tab标签页标题
-            General.Text = rm.GetString("strTpGeneral");
-            TagAccess.Text = rm.GetString("strTpTagAccess");
-            SetCommParam.Text = rm.GetString("strTpSetCommParam");
-            SetReaderParam.Text = rm.GetString("strTpSetReaderParam");
-
-            // 表头更新
-            listView.Columns[0].Text = rm.GetString("strLvHeadNo");
-            listView.Columns[1].Text = rm.GetString("strLvHeadEPC");
-            listView.Columns[2].Text = rm.GetString("strLvHeadCount");
-            listView.Columns[3].Text = rm.GetString("strLvHeadAntNo");
-            listView.Columns[4].Text = rm.GetString("strLvHeadDevNo");
-            lvZl.Columns[0].Text = rm.GetString("strZlHeadNo");
-            lvZl.Columns[1].Text = rm.GetString("strZlHeadIP");
-            lvZl.Columns[2].Text = rm.GetString("strZlHeadPort");
-            lvZl.Columns[3].Text = rm.GetString("strZlHeadMAC");
-
-            // 按钮文字
-            btnConnect.Text = rm.GetString("strBtnConnect");
-            btnDisconnect.Text = rm.GetString("strBtnDisconnect");
-            btnUpdate.Text = rm.GetString("strBtnUpdate");
-            btnStartReadData.Text = rm.GetString("strBtnStartReadData");
-            btnStopReadData.Text = rm.GetString("strBtnStopReadData");
-            btnClearListView.Text = rm.GetString("strBtnClearListView");
-            btnReadOnce.Text = rm.GetString("strBtnReadOnce");
-            btnDefaultParams .Text = rm.GetString("strBtnDefaultParams");
-            btnGetAnts.Text = rm.GetString("strBtnGetAnts");
-            btnGetDI.Text = rm.GetString("strBtnGetDI");
-            btnKillTag .Text = rm.GetString("strBtnKillTag");
-             btnModifyDev .Text = rm.GetString("strBtnModifyDev");
-             btnLockTag.Text = rm.GetString("strBtnPerform");
-             btnReadData.Text = rm.GetString("strBtnReadTagData");
-             btnSearchDev .Text = rm.GetString("strBtnSearchDev");
-             btnSetHeartTime .Text = rm.GetString("strBtnSetAlive");
-             btnSetAnts .Text = rm.GetString("strBtnSetAnts");
-             btnSetDevNo .Text = rm.GetString("strBtnSetDevNo");
-             btnSetOutPort .Text = rm.GetString("strBtnSetDO");
-             btnSetNeighJudge .Text = rm.GetString("strBtnSetNeighJudge");
-             btnSetParams .Text = rm.GetString("strBtnSetParams");
-             btnWriteData.Text = rm.GetString("strBtnWriteTagData");
-             btnClearData.Text = rm.GetString("strBtnClearEditData");
-
-             // RadioButton标示
-             rbAsc.Text = rm.GetString("strRbAsc");
-             rbDesc.Text = rm.GetString("strRbDesc");
-             rbNet.Text = rm.GetString("strRbNet");
-             rbSerialPort.Text = rm.GetString("strRbSerialPort");
-
-             // CheckBox标示
-             cbAnt1.Text = rm.GetString("strCbAnt1");
-             cbAnt2.Text = rm.GetString("strCbAnt2");
-             cbAnt3.Text = rm.GetString("strCbAnt3");
-             cbAnt4.Text = rm.GetString("strCbAnt4");
-             cbIn1.Text = rm.GetString("strCbIn1");
-             cbIn2.Text = rm.GetString("strCbIn2");
-             cbOut1.Text = rm.GetString("strCbOut1");
-             cbOut2.Text = rm.GetString("strCbOut2");
-             cbSaveFile.Text = rm.GetString("strCbSaveFile");
-             // GroupBox说明文字
-             gbAntParams.Text = rm.GetString("strGbAntParams");
-             gbCommMode.Text = rm.GetString("strGbCommMode");
-             gbDestroyTag.Text = rm.GetString("strGbDestroyTag");
-             gbDevParams.Text = rm.GetString("strGbDevParams");
-             gbIOOpr.Text = rm.GetString("strGbIOOpr");
-             gbLockTag.Text = rm.GetString("strGbLockTag");
-             gbNetParams.Text = rm.GetString("strGbNetParams");
-             gbRWData.Text = rm.GetString("strGbRWData");
-             gbSPParams.Text = rm.GetString("strGbSPParams");
-             // Label标签
-             labAlive.Text = rm.GetString("strLabAlive");
-             labAntUnit.Text = rm.GetString("strLabAntUnit");
-             labBaudRate.Text = rm.GetString("strLabBaudRate");
-             labCheckBits.Text = rm.GetString("strLabCheckBits");
-             labCommPort.Text = rm.GetString("strLabCommPort");
-             labDataBits.Text = rm.GetString("strLabDataBits");
-             labDestIP.Text = rm.GetString("strLabDestIP");
-             labDestPort.Text = rm.GetString("strLabDestPort");
-             labDestroyPwd.Text = rm.GetString("strLabDestrlyPwd");
-             labDesAccessPwd.Text = rm.GetString("strLabDestroyAccessPwd");
-             labDevNo.Text = rm.GetString("strLabDevNo");
-             labGateway.Text = rm.GetString("strLabGateway");
-             labIPAdd.Text = rm.GetString("strLabIPAdd");
-             labIPMode.Text = rm.GetString("strLabIPMode");
-             labLength.Text = rm.GetString("strLabLength");
-             labLockAccessPwd.Text = rm.GetString("strLabLockAccessPwd");
-             labLockBank.Text = rm.GetString("strLabLockBank");
-             labLockType.Text = rm.GetString("strLabLockType");
-             labMask.Text = rm.GetString("strLabMask");
-             labNeightJudge.Text = rm.GetString("strLabNeighJudge");
-             labNetMode.Text = rm.GetString("strLabNetMode");
-             labPort.Text = rm.GetString("strLabPort");
-             labPromotion.Text = rm.GetString("strLabPromotion");
-             labRWAccessPwd.Text = rm.GetString("strLabRWAccessPwd");
-             labOprBank.Text = rm.GetString("strLabRWBank");
-             labData.Text = rm.GetString("strLabRWData");
-             labStartAdd.Text = rm.GetString("strLabStartAdd");
-             labReadCount.Text = rm.GetString("strLabCount");
-             labTagCount.Text = rm.GetString("strLabTagCount");
-            // 语言切换后，清空左下角结果提示串
-             labResult.Text = "";
-             labelVersion.Text = "";
-             labSetParam.Text = "";
-        }    
     }
     public struct WSADATA 
     { 
