@@ -60,8 +60,7 @@ namespace R2kDemo
 
             btnConnect.Enabled = true;
             btnDisconnect.Enabled = false;
-            btnStartReadData.Enabled = false;            
-            btnReadOnce.Enabled = false;
+            btnStartReadData.Enabled = false; 
             btnStopReadData.Enabled = false;
         }
 
@@ -83,7 +82,6 @@ namespace R2kDemo
             btnConnect.Enabled = false;
             btnDisconnect.Enabled = true;
             btnStartReadData.Enabled = true;
-            btnReadOnce.Enabled = true;
             bConnected = true;
             timerConnect.Stop();// 连接成功，结束定时器
         }
@@ -179,7 +177,6 @@ namespace R2kDemo
         private void btnClear_Click(object sender, EventArgs e)
         {
             Tag_data.Clear();
-            labelTagCount.Text = "0";
             labelCount.Text = "0";
         }
 
@@ -191,7 +188,6 @@ namespace R2kDemo
             btnConnect.Enabled = true;
             btnDisconnect.Enabled = false;
             btnStartReadData.Enabled = false;
-            btnReadOnce.Enabled = false;
             btnStopReadData.Enabled = false;
             bConnected = false;
         }
@@ -212,6 +208,11 @@ namespace R2kDemo
         bool IsDecNumber(string str)
         {
             return Regex.IsMatch(str, "^[0-9]+$");
+        }
+
+        private void MainWindow_Load(object sender, EventArgs e)
+        {
+
         }
     }
     public struct WSADATA 
