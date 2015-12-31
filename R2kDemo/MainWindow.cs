@@ -47,7 +47,6 @@ namespace R2kDemo
        public delegate void DeleConnectDev(byte[] ip, int CommPort, uint PortOrBaudRate);
         // 数据产生时，触发此事件，更新ListView控件
        public delegate void UpdateControlEventHandler();
-       public static event UpdateControlEventHandler UpdateControl;
        
 
         public MainWindow()
@@ -135,29 +134,7 @@ namespace R2kDemo
            {
                epc += string.Format("{0:X2} ",data[i]);
            }
-           bNewTag = true;
-           for (int i = 0; i < Tag_data.Count; ++i)
-           {
-               if (epc == Tag_data[i].epc)
-               {
-                   Tag_data[i].count++;
-                   Tag_data[i].antNo = data[length - 1];
-                   Tag_data[i].devNo = data[length - 2];
-                   bNewTag = false;     // 不是新标签
-                   nItemNo = i;             //记录数据索引值，用于更新listView表
-                   break;
-               }
-           }
-           if (bNewTag)
-           {
-               EPC_data epcdata = new EPC_data();
-               epcdata.epc = epc;
-               epcdata.antNo = data[length - 1];
-               epcdata.devNo = data[length - 2];
-               epcdata.count = 1;
-               Tag_data.Add(epcdata);
-           }
-           UpdateControl(); // 有新数据产生，更新listView
+           // UpdateControl(); // 有新数据产生，更新listView
         }
 
         private void btnStart_Click(object sender, EventArgs e)
