@@ -31,7 +31,6 @@
             this.components = new System.ComponentModel.Container();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.General = new System.Windows.Forms.TabPage();
-            this.cbSaveFile = new System.Windows.Forms.CheckBox();
             this.labelCount = new System.Windows.Forms.Label();
             this.labelTagCount = new System.Windows.Forms.Label();
             this.labReadCount = new System.Windows.Forms.Label();
@@ -43,16 +42,12 @@
             this.labCommPort = new System.Windows.Forms.Label();
             this.textBoxPort = new System.Windows.Forms.TextBox();
             this.comboBoxIP = new System.Windows.Forms.ComboBox();
-            this.rbDesc = new System.Windows.Forms.RadioButton();
-            this.rbAsc = new System.Windows.Forms.RadioButton();
             this.labelVersion = new System.Windows.Forms.Label();
             this.btnClearListView = new System.Windows.Forms.Button();
             this.btnStopReadData = new System.Windows.Forms.Button();
             this.btnStartReadData = new System.Windows.Forms.Button();
             this.btnReadOnce = new System.Windows.Forms.Button();
-            this.listView = new R2kDemo.ListViewNF();
             this.timerConnect = new System.Windows.Forms.Timer(this.components);
-            this.cbbLangSwitch = new System.Windows.Forms.ComboBox();
             this.tabControl.SuspendLayout();
             this.General.SuspendLayout();
             this.gbCommMode.SuspendLayout();
@@ -64,47 +59,33 @@
             this.tabControl.Location = new System.Drawing.Point(4, 12);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(854, 469);
+            this.tabControl.Size = new System.Drawing.Size(491, 373);
             this.tabControl.TabIndex = 0;
             // 
             // General
             // 
-            this.General.Controls.Add(this.cbSaveFile);
             this.General.Controls.Add(this.labelCount);
             this.General.Controls.Add(this.labelTagCount);
             this.General.Controls.Add(this.labReadCount);
             this.General.Controls.Add(this.labTagCount);
             this.General.Controls.Add(this.gbCommMode);
-            this.General.Controls.Add(this.rbDesc);
-            this.General.Controls.Add(this.rbAsc);
             this.General.Controls.Add(this.labelVersion);
             this.General.Controls.Add(this.btnClearListView);
             this.General.Controls.Add(this.btnStopReadData);
             this.General.Controls.Add(this.btnStartReadData);
             this.General.Controls.Add(this.btnReadOnce);
-            this.General.Controls.Add(this.listView);
             this.General.Location = new System.Drawing.Point(4, 22);
             this.General.Name = "General";
             this.General.Padding = new System.Windows.Forms.Padding(3);
-            this.General.Size = new System.Drawing.Size(846, 443);
+            this.General.Size = new System.Drawing.Size(483, 347);
             this.General.TabIndex = 0;
             this.General.Text = "基本操作";
             this.General.UseVisualStyleBackColor = true;
             // 
-            // cbSaveFile
-            // 
-            this.cbSaveFile.AutoSize = true;
-            this.cbSaveFile.Location = new System.Drawing.Point(697, 356);
-            this.cbSaveFile.Name = "cbSaveFile";
-            this.cbSaveFile.Size = new System.Drawing.Size(84, 16);
-            this.cbSaveFile.TabIndex = 38;
-            this.cbSaveFile.Text = "保存为文件";
-            this.cbSaveFile.UseVisualStyleBackColor = true;
-            // 
             // labelCount
             // 
             this.labelCount.AutoSize = true;
-            this.labelCount.Location = new System.Drawing.Point(691, 19);
+            this.labelCount.Location = new System.Drawing.Point(394, 324);
             this.labelCount.Name = "labelCount";
             this.labelCount.Size = new System.Drawing.Size(11, 12);
             this.labelCount.TabIndex = 37;
@@ -113,7 +94,7 @@
             // labelTagCount
             // 
             this.labelTagCount.AutoSize = true;
-            this.labelTagCount.Location = new System.Drawing.Point(423, 19);
+            this.labelTagCount.Location = new System.Drawing.Point(126, 324);
             this.labelTagCount.Name = "labelTagCount";
             this.labelTagCount.Size = new System.Drawing.Size(11, 12);
             this.labelTagCount.TabIndex = 36;
@@ -122,7 +103,7 @@
             // labReadCount
             // 
             this.labReadCount.AutoSize = true;
-            this.labReadCount.Location = new System.Drawing.Point(626, 19);
+            this.labReadCount.Location = new System.Drawing.Point(329, 324);
             this.labReadCount.Name = "labReadCount";
             this.labReadCount.Size = new System.Drawing.Size(59, 12);
             this.labReadCount.TabIndex = 35;
@@ -131,7 +112,7 @@
             // labTagCount
             // 
             this.labTagCount.AutoSize = true;
-            this.labTagCount.Location = new System.Drawing.Point(350, 19);
+            this.labTagCount.Location = new System.Drawing.Point(53, 324);
             this.labTagCount.Name = "labTagCount";
             this.labTagCount.Size = new System.Drawing.Size(47, 12);
             this.labTagCount.TabIndex = 34;
@@ -205,41 +186,17 @@
             this.comboBoxIP.Size = new System.Drawing.Size(112, 20);
             this.comboBoxIP.TabIndex = 5;
             // 
-            // rbDesc
-            // 
-            this.rbDesc.AutoSize = true;
-            this.rbDesc.Location = new System.Drawing.Point(452, 358);
-            this.rbDesc.Name = "rbDesc";
-            this.rbDesc.Size = new System.Drawing.Size(95, 16);
-            this.rbDesc.TabIndex = 32;
-            this.rbDesc.TabStop = true;
-            this.rbDesc.Text = "数据降序排列";
-            this.rbDesc.UseVisualStyleBackColor = true;
-            this.rbDesc.CheckedChanged += new System.EventHandler(this.radioButtonDesc_CheckedChanged);
-            // 
-            // rbAsc
-            // 
-            this.rbAsc.AutoSize = true;
-            this.rbAsc.Location = new System.Drawing.Point(296, 358);
-            this.rbAsc.Name = "rbAsc";
-            this.rbAsc.Size = new System.Drawing.Size(95, 16);
-            this.rbAsc.TabIndex = 31;
-            this.rbAsc.TabStop = true;
-            this.rbAsc.Text = "数据升序排列";
-            this.rbAsc.UseVisualStyleBackColor = true;
-            this.rbAsc.CheckedChanged += new System.EventHandler(this.radioButtonＡsc_CheckedChanged);
-            // 
             // labelVersion
             // 
             this.labelVersion.AutoSize = true;
-            this.labelVersion.Location = new System.Drawing.Point(41, 408);
+            this.labelVersion.Location = new System.Drawing.Point(53, 281);
             this.labelVersion.Name = "labelVersion";
             this.labelVersion.Size = new System.Drawing.Size(0, 12);
             this.labelVersion.TabIndex = 30;
             // 
             // btnClearListView
             // 
-            this.btnClearListView.Location = new System.Drawing.Point(680, 380);
+            this.btnClearListView.Location = new System.Drawing.Point(356, 213);
             this.btnClearListView.Name = "btnClearListView";
             this.btnClearListView.Size = new System.Drawing.Size(93, 38);
             this.btnClearListView.TabIndex = 4;
@@ -249,7 +206,7 @@
             // 
             // btnStopReadData
             // 
-            this.btnStopReadData.Location = new System.Drawing.Point(569, 380);
+            this.btnStopReadData.Location = new System.Drawing.Point(245, 213);
             this.btnStopReadData.Name = "btnStopReadData";
             this.btnStopReadData.Size = new System.Drawing.Size(93, 38);
             this.btnStopReadData.TabIndex = 3;
@@ -259,7 +216,7 @@
             // 
             // btnStartReadData
             // 
-            this.btnStartReadData.Location = new System.Drawing.Point(458, 380);
+            this.btnStartReadData.Location = new System.Drawing.Point(134, 213);
             this.btnStartReadData.Name = "btnStartReadData";
             this.btnStartReadData.Size = new System.Drawing.Size(93, 38);
             this.btnStartReadData.TabIndex = 2;
@@ -269,7 +226,7 @@
             // 
             // btnReadOnce
             // 
-            this.btnReadOnce.Location = new System.Drawing.Point(347, 380);
+            this.btnReadOnce.Location = new System.Drawing.Point(23, 213);
             this.btnReadOnce.Name = "btnReadOnce";
             this.btnReadOnce.Size = new System.Drawing.Size(93, 38);
             this.btnReadOnce.TabIndex = 1;
@@ -277,37 +234,15 @@
             this.btnReadOnce.UseVisualStyleBackColor = true;
             this.btnReadOnce.Click += new System.EventHandler(this.btnInvokeOnce_Click);
             // 
-            // listView
-            // 
-            this.listView.Location = new System.Drawing.Point(287, 50);
-            this.listView.Name = "listView";
-            this.listView.Size = new System.Drawing.Size(495, 303);
-            this.listView.TabIndex = 0;
-            this.listView.UseCompatibleStateImageBehavior = false;
-            this.listView.View = System.Windows.Forms.View.Details;
-            // 
             // timerConnect
             // 
             this.timerConnect.Tick += new System.EventHandler(this.timerConnect_Tick);
-            // 
-            // cbbLangSwitch
-            // 
-            this.cbbLangSwitch.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbbLangSwitch.FormattingEnabled = true;
-            this.cbbLangSwitch.Items.AddRange(new object[] {
-            "简体中文",
-            "English"});
-            this.cbbLangSwitch.Location = new System.Drawing.Point(712, 5);
-            this.cbbLangSwitch.Name = "cbbLangSwitch";
-            this.cbbLangSwitch.Size = new System.Drawing.Size(76, 20);
-            this.cbbLangSwitch.TabIndex = 1;
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 12F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(814, 493);
-            this.Controls.Add(this.cbbLangSwitch);
+            this.ClientSize = new System.Drawing.Size(500, 390);
             this.Controls.Add(this.tabControl);
             this.Name = "MainWindow";
             this.Text = "R2kDemo_C#_V1.0";
@@ -328,24 +263,19 @@
         private System.Windows.Forms.Button btnStopReadData;
         private System.Windows.Forms.Button btnStartReadData;
         private System.Windows.Forms.Button btnReadOnce;
-       // private System.Windows.Forms.ListView listView;
-        private ListViewNF listView;
+        // private System.Windows.Forms.ListView listView;
         private System.Windows.Forms.ComboBox comboBoxIP;
         private System.Windows.Forms.Label labCommPort;
         private System.Windows.Forms.TextBox textBoxPort;
         private System.Windows.Forms.Button btnDisconnect;
         private System.Windows.Forms.Button btnConnect;
         private System.Windows.Forms.Label labelVersion;
-        private System.Windows.Forms.RadioButton rbDesc;
-        private System.Windows.Forms.RadioButton rbAsc;
         private System.Windows.Forms.GroupBox gbCommMode;
         private System.Windows.Forms.Label labelCount;
         private System.Windows.Forms.Label labelTagCount;
         private System.Windows.Forms.Label labReadCount;
         private System.Windows.Forms.Label labTagCount;
         private System.Windows.Forms.Timer timerConnect;
-        private System.Windows.Forms.ComboBox cbbLangSwitch;
-        private System.Windows.Forms.CheckBox cbSaveFile;
         private System.Windows.Forms.Label label1;
     }
 }

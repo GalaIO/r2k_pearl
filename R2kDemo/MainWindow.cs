@@ -53,57 +53,16 @@ namespace R2kDemo
         public MainWindow()
         {
             InitializeComponent();
-
-            UpdateControl = new UpdateControlEventHandler(UpdateListView);  //订阅UpdateControl事件
             // 允许跨线程更新窗口控件
             Control.CheckForIllegalCrossThreadCalls = false;
 
             textBoxPort.Text = "20058";
-            // 主数据表
-            listView.Columns.Add("No", 40, HorizontalAlignment.Center);
-            listView.Columns.Add("EPC", 260, HorizontalAlignment.Center);
-            listView.Columns.Add("Count", 60, HorizontalAlignment.Center);
-            listView.Columns.Add("AntNo", 60, HorizontalAlignment.Center);
-            listView.Columns.Add("DevNo", 60, HorizontalAlignment.Center);
-
-
-            // 初始化各个页面控件
-            cbbLangSwitch.SelectedIndex = 0; // 默认中文
 
             btnConnect.Enabled = true;
             btnDisconnect.Enabled = false;
             btnStartReadData.Enabled = false;            
             btnReadOnce.Enabled = false;
             btnStopReadData.Enabled = false;
-            btnUpdate_Click(null, null);
-        }
-
-        // 更新串口列表
-        public void GetSerialPortList(ref ComboBox comboBoxSP)
-        {
-            comboBoxSP.Items.Clear();
-            comboBoxSP.Items.AddRange(SerialPort.GetPortNames());
-            if (comboBoxSP.Items.Count > 0)
-            {
-                comboBoxSP.SelectedIndex = 0;
-            }
-        }
-        unsafe private void btnUpdate_Click(object sender, EventArgs e)
-        {
-            WSADATA wsaData = new WSADATA();
-            WSAStartup(0x0202,  ref wsaData); 
-            // 搜索设备，获得IP列表
-            ZLDM.m_DevCnt = ZLDM.StartSearchDev();
-            comboBoxIP.Items.Clear();
-            for (byte i = 0; i < ZLDM.m_DevCnt; ++i)
-            {
-                comboBoxIP.Items.Add(Marshal.PtrToStringAnsi(ZLDM.GetIP(i)));
-            }
-            if (ZLDM.m_DevCnt > 0)
-            {
-                comboBoxIP.SelectedIndex = 0;
-            }
-            //WSACleanup();
         }
 
         // 委托执行的连接函数，成功后修改标志并停止定时器
@@ -202,59 +161,6 @@ namespace R2kDemo
            }
            UpdateControl(); // 有新数据产生，更新listView
         }
-        // 保存数据
-         public static void WriteFile(string strTxt, string path)
-         {
-             using (StreamWriter wlog = File.AppendText(path))
-             {
-                 wlog.Write("{0}", strTxt);
-                 wlog.Write(wlog.NewLine);
-             }
-         }
-        private void UpdateListView()
-        {
-            if (cbSaveFile.Checked)
-            {
-                WriteFile(epc, "tag.txt");
-            }
-            if (!bNewTag) // 非新标签，更新对应项的读取次数及天线号、设备号等
-            {
-                labelCount.Text = (int.Parse(labelCount.Text) + 1).ToString();
-               listView.Items[nItemNo].SubItems[2].Text = Tag_data[nItemNo].count.ToString();
-               listView.Items[nItemNo].SubItems[3].Text = Tag_data[nItemNo].antNo.ToString();
-               listView.Items[nItemNo].SubItems[4].Text = Tag_data[nItemNo].devNo.ToString();
-            }
-            else // 新标签
-            {
-                labelCount.Text = (int.Parse(labelCount.Text) + 1).ToString(); // 更新读取次数
-                labelTagCount.Text = (int.Parse(labelTagCount.Text) + 1).ToString();// 更新标签计数
-                ListViewItem lvi = new ListViewItem();
-                int no = Tag_data.Count;
-                lvi.Text = no.ToString();
-                lvi.SubItems.Add(Tag_data[no - 1].epc);
-                lvi.SubItems.Add(Tag_data[no - 1].count.ToString());
-                lvi.SubItems.Add(Tag_data[no - 1].antNo.ToString());
-                lvi.SubItems.Add(Tag_data[no - 1].devNo.ToString());
-                listView.Items.Add(lvi);
-            }        
-        }
-
-       private void UpdateLV() 
-       {
-           listView.BeginUpdate();
-           listView.Items.Clear();
-           for (int i = 1; i <= Tag_data.Count; ++i)
-           {
-               ListViewItem lvi = new ListViewItem();
-               lvi.Text = i.ToString();
-               lvi.SubItems.Add(Tag_data[i - 1].epc);
-               lvi.SubItems.Add(Tag_data[i - 1].count.ToString());
-               lvi.SubItems.Add(Tag_data[i - 1].antNo.ToString());
-               lvi.SubItems.Add(Tag_data[i - 1].devNo.ToString());
-               listView.Items.Add(lvi);
-           }
-           listView.EndUpdate();
-       }
 
         private void btnStart_Click(object sender, EventArgs e)
         {
@@ -272,7 +178,6 @@ namespace R2kDemo
 
         private void btnClear_Click(object sender, EventArgs e)
         {
-            listView.Items.Clear();
             Tag_data.Clear();
             labelTagCount.Text = "0";
             labelCount.Text = "0";
@@ -291,18 +196,6 @@ namespace R2kDemo
             bConnected = false;
         }
 
-        private void radioButtonＡsc_CheckedChanged(object sender, EventArgs e)
-        {
-            Tag_data.Sort();
-            UpdateLV();
-        }
-
-        private void radioButtonDesc_CheckedChanged(object sender, EventArgs e)
-        {
-            Tag_data.Sort();
-            Tag_data.Reverse();
-            UpdateLV();
-        }
 
         private void SetCommParam_Enter(object sender, EventArgs e)
         {
