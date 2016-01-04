@@ -35,9 +35,19 @@ namespace cameraTest
         private void Form1_Load(object sender, EventArgs e)
         {
             //串口初始化
-            serialPortInnitial();
+            if (false == serialPortInnitial())
+            {
+                this.button_com_open.Enabled = false;
+            }
             //摄像头初始化
-            cameraDevInnitial();
+            if (false == cameraDevInnitial())
+            {
+                this.button_cam_open.Enabled = false;
+            }
+
+            //按键初始化
+            this.button_cam_close.Enabled = false;
+            this.button_com_close.Enabled = false;
         }
 
         //串口初始化
@@ -48,6 +58,10 @@ namespace cameraTest
             if (portName.Length == 0)
             {
                 this.list_com.Items.Add("unavaliable");
+                //显示默认项
+                this.list_com.SelectedIndex = 0;
+                //返回错误
+                return false;
             }
             else
             {
@@ -89,12 +103,15 @@ namespace cameraTest
             {
                 this.list_cam.Items.Add("unavaliable");
                 this.list_cam.SelectedIndex = 0;
+                //返回错误
+                return false;
             }
 
             return true;
         }
         private void CameraConn()
         {
+            Console.WriteLine(videoDevices[list_cam.SelectedIndex].MonikerString);
             VideoCaptureDevice videoSource = new VideoCaptureDevice(videoDevices[list_cam.SelectedIndex].MonikerString);
             videoSource.DesiredFrameSize = new Size(this.videoPlayer.Width, this.videoPlayer.Height);
             videoSource.DesiredFrameRate = 1;
@@ -106,12 +123,19 @@ namespace cameraTest
         private void button_cam_open_Click(object sender, EventArgs e)
         {
             CameraConn();
+            //修改按钮状态
+            this.button_cam_open.Enabled = false;
+            this.button_cam_close.Enabled = true;
         }
 
         private void button_cam_close_Click(object sender, EventArgs e)
         {
+            //关闭视频流
             videoPlayer.SignalToStop();
             videoPlayer.WaitForStop();
+            //修改按钮状态
+            this.button_cam_open.Enabled = true;
+            this.button_cam_close.Enabled = false;
         }
         //拍照
         private void photoShot(string pName, int width, int height)
@@ -132,20 +156,35 @@ namespace cameraTest
         }
         private void Form1_FormClosing(object sender, FormClosingEventArgs e)
         {
-            button_cam_close_Click(null, null);
-            button_com_close_Click(null, null);
+            //如果摄像头打开，关闭摄像头
+            if (videoPlayer.IsRunning)
+            {
+                videoPlayer.SignalToStop();
+                videoPlayer.WaitForStop();
+            }
+            //如果串口打开，关闭串口
+            if (serialPort.IsOpen)
+            {
+                serialPort.Close();
+            }
         }
 
         private void button_com_open_Click(object sender, EventArgs e)
         {
             Console.WriteLine(list_com.Items[list_com.SelectedIndex].ToString());
             comOpen(list_com.Items[list_com.SelectedIndex].ToString(), 9600, Parity.None, 8, StopBits.One);
+            //修改按钮状态
+            this.button_com_open.Enabled = false;
+            this.button_com_close.Enabled = true;
 
         }
 
         private void button_com_close_Click(object sender, EventArgs e)
         {
             serialPort.Close();
+            //修改按钮状态
+            this.button_com_open.Enabled = true;
+            this.button_com_close.Enabled = false;
         }
 
         private void comOpen(string comName, int baudRate, Parity parity, int DataBits, StopBits stopBits)
@@ -162,27 +201,14 @@ namespace cameraTest
         //接收数据
         private void comDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            // 判断用户用的是字节模式还是字符模式
-            /*if (CurrentDataMode == DataMode.Text)
-            {
-                // 读取缓冲区的数据
-                string data = serialPort.ReadExisting();
-            }
-
-            else
-            {*/
                 // 获取字节长度
                 int bytes = serialPort.BytesToRead;
-
                 // 创建字节数组
                 byte[] buffer = new byte[bytes];
-
                 // 读取缓冲区的数据到数组
                 serialPort.Read(buffer, 0, bytes);
-
                 text_info.AppendText(Encoding.Default.GetString(buffer));
                 //photoShot("tmp",300,300);
-            //}
 
         }
     }
