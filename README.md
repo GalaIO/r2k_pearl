@@ -60,3 +60,11 @@ length 为 1
 2. 如果立刻收到，是命令响应。data 值是 0x00. 代码成功接收操作命令。
 
 length 为 16，收到正常的标签数据。12 位的 data 值。
+
+##Camera API
+使用的开源的AForge.NET-Framework-2.2.4库，用于处理视频、视觉学习等。链接库文在在r2k_pearl\cameraTest\cameraTest\libs中。
+
+如何使用第三方库的dll，首先在项目资源空白处右键选择添加应用-->浏览-->libs文件夹-->载入所有的dll文件。
+
+如何使用第三方控件，在工具箱常规表项下空白处右键点击选择项-->浏览-->选择libs文件夹-->载入AForge.Controls.dll即可。
+
